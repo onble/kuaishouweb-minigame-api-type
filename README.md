@@ -1,0 +1,1 @@
+# kuaishouweb-minigame-api-type
