@@ -796,5 +796,325 @@ declare namespace KuaiShouWebMinigame {
         clearStorageSync: () => void;
 
         //#endregion 数据缓存
+
+        //#region 媒体
+
+        //#region 音频
+
+        /**
+         * 创建内部 audio 上下文 InnerAudioContext 对象
+         * @returns 内部音频上下文实例
+         * @example
+         * ```javascript
+         * const innerAudioContext = ks.createInnerAudioContext()
+         * innerAudioContext.autoplay = true
+         * innerAudioContext.src = 'your_audio_src'//音频资源的地址
+         * innerAudioContext.onPlay(() => {
+         *   console.log('开始播放')
+         * })
+         * innerAudioContext.onError((res) => {
+         *   console.log(res.errMsg)
+         *   console.log(res.errCode)
+         * })
+         * ```
+         */
+        createInnerAudioContext: () => InnerAudioContext;
+
+        //#endregion 音频
+
+        //#region 图片
+
+        /**
+         * 从本地相册选择图片或使用相机拍照
+         * @param object - 选择图片参数
+         * @example
+         * ```javascript
+         * ks.chooseImage({
+         *   count: 1,
+         *   sizeType: ['original', 'compressed'],
+         *   sourceType: ['album', 'camera'],
+         *   success (res) {
+         *     // tempFilePath可以作为img标签的src属性显示图片
+         *     const tempFilePaths = res.tempFilePaths
+         *   }
+         * })
+         * ```
+         */
+        chooseImage: (object?: ChooseImageOptions) => void;
+
+        /**
+         * 保存图片到系统相册
+         * @description 该 API 需要用户授权方可调用；暂不支持网络图片，需先通过 ks.downloadFile 下载后再保存
+         * @param object - 保存图片参数
+         * @example
+         * ```javascript
+         * ks.saveImageToPhotosAlbum({
+         *   filePath: "path", // 暂不支持网络图片/本地图片地址，网络图片保存需要先调用 ks.downloadFile 下载图片
+         *   success: function (res) {
+         *     console.log("保存图片到相册成功");
+         *   },
+         *   fail: function (err) {
+         *     if (err.code === -10005) {
+         *       console.log("暂不支持该功能");
+         *     } else {
+         *       console.log("保存图片到相册失败", err.msg);
+         *     }
+         *   }
+         * })
+         * ```
+         */
+        saveImageToPhotosAlbum: (object: SaveImageToPhotosAlbumOptions) => void;
+
+        //#endregion  图片
+
+        //#region 视频
+
+        /**
+         * 创建视频对象
+         * @description 视频组件支持快手双端版本>=12.11.20；透明canvas仅支持cocos引擎，暂不支持unity
+         * @param object - 视频初始化参数
+         * @returns 视频实例对象
+         * @example
+         * ```javascript
+         * const video = ks.createVideo({
+         *   x: 0,
+         *   y: 0,
+         *   width: 300,
+         *   height: 200,
+         *   src: 'https://example.com/video.mp4', // 支持CDN链接或本地下载后的路径
+         *   autoplay: false,
+         *   loop: false,
+         *   objectFit: 'contain'
+         * });
+         * 
+         * // 播放视频
+         * video.play();
+         * 
+         * // 监听首帧事件
+         * video.onCandraw((scale) => {
+         *   console.log('视频宽高比：', scale);
+         * });
+         * 
+         * // 监听进度更新
+         * video.onTimeUpdate((res) => {
+         *   console.log('当前播放位置：', res.position, '总时长：', res.duration);
+         * });
+         * 
+         * // 监听错误事件
+         * video.onError((errMsg) => {
+         *   console.error('视频播放错误：', errMsg);
+         * });
+         * ```
+         */
+        createVideo: (object: CreateVideoOptions) => Video;
+
+        //#endregion 视频
+
+        //#endregion 媒体
+
+        //#region 文件
+
+        /**
+         * 获取全局唯一的文件管理器
+         * @returns 文件管理器实例
+         * @example
+         * ```javascript
+         * // 获取文件管理器
+         * const fs = ks.getFileSystemManager();
+         * 
+         * // 异步判断文件是否存在
+         * fs.access({
+         *   path: `${ks.env.USER_DATA_PATH}/test.txt`,
+         *   success: () => console.log('文件存在'),
+         *   fail: (err) => console.log('文件不存在', err.errMsg)
+         * });
+         * 
+         * // 同步创建目录
+         * try {
+         *   fs.mkdirSync(`${ks.env.USER_DATA_PATH}/testDir`, true);
+         *   console.log('目录创建成功');
+         * } catch (e) {
+         *   console.error('创建目录失败', e.message);
+         * }
+         * 
+         * // 异步写入文件
+         * fs.writeFile({
+         *   filePath: `${ks.env.USER_DATA_PATH}/test.txt`,
+         *   data: 'hello world',
+         *   encoding: 'utf8',
+         *   success: () => console.log('文件写入成功'),
+         *   fail: (err) => console.error('写入失败', err.errMsg)
+         * });
+         * 
+         * // 同步读取文件
+         * try {
+         *   const data = fs.readFileSync(`${ks.env.USER_DATA_PATH}/test.txt`, 'utf8');
+         *   console.log('文件内容：', data);
+         * } catch (e) {
+         *   console.error('读取文件失败', e.message);
+         * }
+         * 
+         * // 异步获取文件Stats
+         * fs.stat({
+         *   path: `${ks.env.USER_DATA_PATH}/testDir`,
+         *   recursive: true,
+         *   success: (res) => {
+         *     Object.keys(res.stats).forEach(path => {
+         *       console.log(path, res.stats[path].isDirectory());
+         *     });
+         *   }
+         * });
+         * ```
+         */
+        getFileSystemManager: () => FileSystemManager;
+
+        //#endregion 文件
+
+        //#region 开放接口
+
+
+        //#region 用户信息
+
+        /**
+         * 获取用户信息
+         * @description 若用户已授权，可获取用户信息；需注意用户可能修改昵称/头像，需重新获取保证信息有效
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.getUserInfo({
+         *   success: (result) => {
+         *     console.log("获取用户信息成功：" + JSON.stringify(result));
+         *   },
+         *   fail: (error) => {
+         *     console.log("获取用户信息失败: " + JSON.stringify(error));
+         *   },
+         *   complete:() => {
+         *     console.log("获取用户信息完成");
+         *   }
+         * });
+         * ```
+         */
+        getUserInfo: (object: GetUserInfoOptions) => void;
+
+        //#endregion 用户信息
+
+        //#region 登录
+
+        /**
+        * 获取用户临时登录凭证 code
+        * @description 前端获取 code 后传给服务器，用于换取 open_id、session_key 等用户身份标识
+        * @param object - 接口入参
+        * @example
+        * ```javascript
+        * ks.login({
+        *   success: function(res) {
+        *     console.log(res.code);
+        *   },
+        *   fail: function(error) {
+        *     console.error(error);
+        *   },
+        *   complete: function() {
+        *     console.log("login complete");
+        *   }
+        * })
+        * ```
+        */
+        login: (object: LoginOptions) => void;
+
+        /**
+         * 检查登录态是否过期
+         * @description session_key 有有效期，频繁使用小游戏可延长有效期；未过期时调用 login 会刷新会话，导致旧 session_key 失效
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.checkSession({
+         *   success: function() {
+         *     //登录态有效
+         *   },
+         *   fail: function() {
+         *     // 错误处理
+         *   }
+         * })
+         * ```
+         */
+        checkSession: (object: CheckSessionOptions) => void;
+
+        //#endregion 登录
+
+        //#region 授权
+
+        /**
+         * 向用户发起授权请求
+         * @description 1. 未授权过则弹窗询问；2. 已同意授权则直接返回成功；3. 已拒绝授权则直接返回失败；userInfo授权需先调用ks.login
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.authorize({
+         *   scope: "scope.userInfo",
+         *   success: () => {
+         *     console.log("授权获取用户信息成功");
+         *   },
+         *   fail: (error) => {
+         *     console.log("授权获取用户信息失败: " + JSON.stringify(error));
+         *   },
+         *   complete:() => {
+         *     console.log("授权获取用户信息完成");
+         *   }
+         * });
+         * ```
+         */
+        authorize: (object: AuthorizeOptions) => void;
+
+        /**
+         * 异步获取当前用户的权限设置
+         * @description 返回值中仅包含已请求过的权限
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.getSetting({
+         *   success: (res) => {
+         *     console.log("用户信息授权状态：", res.result['scope.userInfo']);
+         *     console.log("保存相册授权状态：", res.result['scope.writePhotosAlbum']);
+         *   },
+         *   fail: (error) => {
+         *     console.log("获取权限设置失败: " + JSON.stringify(error));
+         *   }
+         * });
+         * ```
+         */
+        getSetting: (object: GetSettingOptions) => void;
+
+        //#endregion 授权
+
+        //#endregion 开放接口
+
+        //#region 分包
+
+        /**
+         * 加载子包
+         * @description 调用成功后子包目录下的 game.js 文件会被自动执行
+         * @param object - 接口入参
+         * @returns 加载分包任务实例，可监听加载进度
+         * @example
+         * ```javascript
+         * let launchScene = "sence2"; //您的子包名称
+         * let loadTask   =  ks.loadSubpackage({
+         *   name:launchScene,
+         *   success:function(res){
+         *     // 执行需要的逻辑，如加载场景
+         *   },
+         *   fail:function (err) {
+         *     console.log(err);
+         *   }
+         * });
+         *
+         * loadTask.onProgressUpdate(res=>{
+         *   console.log(res);
+         * });
+         * ```
+         */
+        loadSubpackage: (object: LoadSubpackageOptions) => LoadSubpackageTask;
+
+        //#endregion 分包
     }
 }
