@@ -3610,11 +3610,6 @@ declare namespace KuaiShouWebMinigame {
         complete?: () => void;
     }
     /**
-     * navigateToScene 支持的场景枚举
-     */
-    type NavigateScene = "sidebar"; // 侧边栏场景（最低版本：安卓13.4.40/iOS13.5.40）
-
-    /**
      * navigateToScene 错误码枚举（文档定义的核心错误码）
      */
     enum NavigateSceneErrorCode {
@@ -3677,8 +3672,11 @@ declare namespace KuaiShouWebMinigame {
      * @description 支持版本：安卓>=13.4.40、iOS>=13.5.40，低版本需兼容
      */
     interface NavigateToSceneOptions {
-        /** 要跳转的入口场景（仅支持 'sidebar'） */
-        scene: NavigateScene;
+        /**
+         * 要跳转的入口场景（仅支持 'sidebar'）
+         * 侧边栏场景（最低版本：安卓13.4.40/iOS13.5.40）
+         */
+        scene: "sidebar";
         /** 接口调用成功的回调函数 */
         success?: (res: NavigateToSceneSuccessResult) => void;
         /** 接口调用失败的回调函数 */
