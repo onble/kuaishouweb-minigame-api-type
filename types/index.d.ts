@@ -1116,5 +1116,464 @@ declare namespace KuaiShouWebMinigame {
         loadSubpackage: (object: LoadSubpackageOptions) => LoadSubpackageTask;
 
         //#endregion 分包
+
+        //#region 设备
+
+        //#region 设备方向
+
+        /**
+        * 开始监听设备方向的变化
+        * @param object - 接口入参，包含回调频率、各类回调函数
+        * @example
+        * ```javascript
+        * // 开始监听（游戏级频率）
+        * ks.startDeviceMotionListening({
+        *   interval: 'game',
+        *   success: () => console.log('开始监听设备方向成功'),
+        *   fail: (err) => console.error('开始监听失败', err)
+        * });
+        * 
+        * // 监听方向变化
+        * ks.onDeviceMotionChange((res) => {
+        *   console.log('设备方向：', res.alpha, res.beta, res.gamma);
+        * });
+        * ```
+        */
+        startDeviceMotionListening: (object?: StartDeviceMotionListeningOptions) => void;
+
+        /**
+         * 停止监听设备方向的变化
+         * @param object - 接口入参，包含各类回调函数
+         * @example
+         * ```javascript
+         * // 停止监听
+         * ks.stopDeviceMotionListening({
+         *   success: () => console.log('停止监听设备方向成功')
+         * });
+         * 
+         * // 取消所有方向变化监听
+         * ks.offDeviceMotionChange();
+         * ```
+         */
+        stopDeviceMotionListening: (object?: StopDeviceMotionListeningOptions) => void;
+
+        /**
+         * 监听设备方向变化事件
+         * @description 回调频率由 startDeviceMotionListening 的 interval 参数决定
+         * @param callback - 方向变化回调函数，参数包含 alpha/beta/gamma 角度值
+         */
+        onDeviceMotionChange: (callback: (res: DeviceMotionChangeResult) => void) => void;
+
+        /**
+         * 取消监听设备方向变化事件
+         * @description 参数为空则取消所有监听
+         * @param callback - 要取消的回调函数（可选）
+         */
+        offDeviceMotionChange: (callback?: (res: DeviceMotionChangeResult) => void) => void;
+
+        //#endregion 设备方向
+
+        //#region 键盘
+
+        /**
+         * 更新键盘输入框内容
+         * @description 仅当键盘处于拉起状态时生效
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.updateKeyboard({
+         *   value: '新的输入内容',
+         *   success: () => console.log('输入框内容更新成功'),
+         *   fail: (err) => console.error('更新失败', err)
+         * });
+         * ```
+         */
+        updateKeyboard: (object: UpdateKeyboardOptions) => void;
+
+        /**
+         * 显示键盘
+         * @param object - 接口入参（包含默认值、最大长度等必填项）
+         * @example
+         * ```javascript
+         * ks.showKeyboard({
+         *   defaultValue: '默认输入内容',
+         *   maxLength: 20,
+         *   multiple: false,
+         *   confirmHold: true,
+         *   confirmType: 'done',
+         *   success: () => console.log('键盘显示成功')
+         * });
+         * ```
+         */
+        showKeyboard: (object: ShowKeyboardOptions) => void;
+
+        /**
+         * 隐藏键盘
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.hideKeyboard({
+         *   success: () => console.log('键盘隐藏成功')
+         * });
+         * ```
+         */
+        hideKeyboard: (object?: HideKeyboardOptions) => void;
+
+        /**
+         * 监听键盘输入事件
+         * @param callback - 输入回调函数，参数包含当前输入值
+         * @example
+         * ```javascript
+         * ks.onKeyboardInput((res) => {
+         *   console.log('当前输入值：', res.value);
+         * });
+         * ```
+         */
+        onKeyboardInput: (callback: (res: KeyboardEventResult) => void) => void;
+
+        /**
+         * 监听用户点击键盘 Confirm 按钮的事件
+         * @param callback - 确认回调函数，参数包含当前输入值
+         * @example
+         * ```javascript
+         * ks.onKeyboardConfirm((res) => {
+         *   console.log('点击完成，输入值：', res.value);
+         * });
+         * ```
+         */
+        onKeyboardConfirm: (callback: (res: KeyboardEventResult) => void) => void;
+
+        /**
+         * 监听键盘收起的事件
+         * @param callback - 收起回调函数，参数包含当前输入值
+         * @example
+         * ```javascript
+         * ks.onKeyboardComplete((res) => {
+         *   console.log('键盘收起，最终输入值：', res.value);
+         * });
+         * ```
+         */
+        onKeyboardComplete: (callback: (res: KeyboardEventResult) => void) => void;
+
+        /**
+         * 取消监听键盘输入事件
+         * @param callback - 键盘输入事件的回调函数
+         * @example
+         * ```javascript
+         * const inputCallback = (res) => console.log(res.value);
+         * ks.offKeyboardInput(inputCallback);
+         * ```
+         */
+        offKeyboardInput: (callback: (res: KeyboardEventResult) => void) => void;
+
+        /**
+         * 取消监听键盘 Confirm 按钮点击事件
+         * @param callback - 用户点击键盘 Confirm 按钮时的事件的回调函数
+         */
+        offKeyboardConfirm: (callback: (res: KeyboardEventResult) => void) => void;
+
+        /**
+         * 取消监听键盘收起事件
+         * @param callback - 监听键盘收起的事件的回调函数
+         */
+        offKeyboardComplete: (callback: (res: KeyboardEventResult) => void) => void;
+
+        //#endregion 键盘
+
+        //#region 加速计
+
+        /**
+         * 开始监听加速度数据
+         * @param object - 接口入参，包含回调频率、各类回调函数
+         * @example
+         * ```javascript
+         * // 开始监听（游戏级频率）
+         * ks.startAccelerometer({
+         *   interval: 'game',
+         *   success: () => console.log('开始监听加速度数据成功'),
+         *   fail: (err) => console.error('开始监听失败', err)
+         * });
+         * ```
+         */
+        startAccelerometer: (object?: StartAccelerometerOptions) => void;
+
+        /**
+         * 停止监听加速度数据
+         * @param object - 接口入参，包含各类回调函数
+         * @example
+         * ```javascript
+         * ks.stopAccelerometer({
+         *   success: () => console.log('停止监听加速度数据成功')
+         * });
+         * ```
+         */
+        stopAccelerometer: (object?: StopAccelerometerOptions) => void;
+
+        /**
+         * 监听加速度数据事件
+         * @description 回调频率由 startAccelerometer 的 interval 参数决定，调用后自动开始监听
+         * @param callback - 加速度数据回调函数，参数包含 X/Y/Z 轴数据
+         * @example
+         * ```javascript
+         * ks.onAccelerometerChange((res) => {
+         *   console.log('加速度数据：', res.x, res.y, res.z);
+         * });
+         * ```
+         */
+        onAccelerometerChange: (callback: (res: AccelerometerChangeResult) => void) => void;
+
+        /**
+         * 取消监听加速度数据事件
+         * @description 参数为空则取消所有的事件监听
+         * @param callback - 加速度数据事件的回调函数（可选）
+         * @example
+         * ```javascript
+         * // 取消指定回调
+         * const accelCallback = (res) => console.log(res.x, res.y, res.z);
+         * ks.offAccelerometerChange(accelCallback);
+         * 
+         * // 取消所有监听
+         * ks.offAccelerometerChange();
+         * ```
+         */
+        offAccelerometerChange: (callback?: (res: AccelerometerChangeResult) => void) => void;
+
+        //#endregion 加速计
+
+        //#region 罗盘
+
+        /**
+         * 开始监听罗盘数据
+         * @param object - 接口入参，包含各类回调函数
+         * @example
+         * ```javascript
+         * ks.startCompass({
+         *   success: () => console.log('开始监听罗盘数据成功'),
+         *   fail: (err) => console.error('开始监听失败', err)
+         * });
+         * ```
+         */
+        startCompass: (object?: StartCompassOptions) => void;
+
+        /**
+         * 停止监听罗盘数据
+         * @param object - 接口入参，包含各类回调函数
+         * @example
+         * ```javascript
+         * ks.stopCompass({
+         *   success: () => console.log('停止监听罗盘数据成功')
+         * });
+         * ```
+         */
+        stopCompass: (object?: StopCompassOptions) => void;
+
+        /**
+         * 监听罗盘数据变化事件
+         * @description 频率为5次/秒，调用后自动开始监听，可通过 stopCompass 停止
+         * @param callback - 罗盘数据回调函数，参数包含方向度数、精度（区分 iOS/Android 平台差异）
+         * @example
+         * ```javascript
+         * ks.onCompassChange((res) => {
+         *   console.log('方向度数：', res.direction);
+         *   console.log('精度：', res.accuracy); // iOS 为数字，Android 为字符串枚举
+         * });
+         * ```
+         */
+        onCompassChange: (callback: (res: CompassChangeResult) => void) => void;
+
+        /**
+         * 取消监听罗盘数据变化事件
+         * @description 参数为空则取消所有的事件监听
+         * @param callback - 罗盘数据变化事件的回调函数（可选）
+         * @example
+         * ```javascript
+         * // 取消指定回调
+         * const compassCallback = (res) => console.log(res.direction);
+         * ks.offCompassChange(compassCallback);
+         * 
+         * // 取消所有监听
+         * ks.offCompassChange();
+         * ```
+         */
+        offCompassChange: (callback?: (res: CompassChangeResult) => void) => void;
+
+        //#endregion 罗盘
+
+        //#region 网络
+
+        /**
+         * 获取设备当前所处的网络类型
+         * @param object - 接口入参，包含成功/失败/完成回调
+         * @example
+         * ```javascript
+         * ks.getNetworkType({
+         *   success(res) {
+         *     console.log(`${res.networkType}`);
+         *   },
+         *   fail(res) {
+         *     console.log(`getNetworkType调用失败`);
+         *   },
+         * });
+         * ```
+         */
+        getNetworkType: (object?: GetNetworkTypeOptions) => void;
+
+        /**
+         * 监听网络状态变化
+         * @param callback - 网络状态变化的事件回调函数，参数包含网络类型、是否有连接
+         * @example
+         * ```javascript
+         * ks.onNetworkStatusChange(function (res) {
+         *   console.log(res.isConnected)
+         *   console.log(res.networkType)
+         * })
+         * ```
+         */
+        onNetworkStatusChange: (callback: (res: NetworkStatusChangeResult) => void) => void;
+
+        /**
+         * 移除网络状态变化事件的监听函数
+         * @description 不传参数则移除所有监听函数；需传入与监听时同一个函数对象才能精准移除
+         * @param listener - 网络状态变化的事件回调函数（可选）
+         * @example
+         * ```javascript
+         * const listener = function (res) { console.log(res) }
+         * ks.onNetworkStatusChange(listener)
+         * ks.offNetworkStatusChange(listener) // 移除指定监听
+         * 
+         * // 移除所有监听
+         * ks.offNetworkStatusChange();
+         * ```
+         */
+        offNetworkStatusChange: (listener?: (res: NetworkStatusChangeResult) => void) => void;
+
+        //#endregion 网络
+
+        //#region 陀螺仪
+
+        /**
+         * 开始监听陀螺仪数据
+         * @param object - 接口入参，包含回调频率、各类回调函数
+         * @example
+         * ```javascript
+         * // 开始监听（游戏级频率）
+         * ks.startGyroscope({
+         *   interval: 'game',
+         *   success: () => console.log('开始监听陀螺仪数据成功'),
+         *   fail: (err) => console.error('开始监听失败', err)
+         * });
+         * ```
+         */
+        startGyroscope: (object?: StartGyroscopeOptions) => void;
+
+        /**
+         * 停止监听陀螺仪数据
+         * @param object - 接口入参，包含各类回调函数
+         * @example
+         * ```javascript
+         * ks.stopGyroscope({
+         *   success: () => console.log('停止监听陀螺仪数据成功')
+         * });
+         * ```
+         */
+        stopGyroscope: (object?: StopGyroscopeOptions) => void;
+
+        /**
+         * 监听陀螺仪数据变化事件
+         * @description 回调频率由 startGyroscope 的 interval 参数决定，可通过 stopGyroscope 停止监听
+         * @param callback - 陀螺仪数据回调函数，参数包含 X/Y/Z 轴角速度
+         * @example
+         * ```javascript
+         * ks.onGyroscopeChange((res) => {
+         *   console.log('陀螺仪角速度：', res.x, res.y, res.z);
+         * });
+         * ```
+         */
+        onGyroscopeChange: (callback: (res: GyroscopeChangeResult) => void) => void;
+
+        /**
+         * 取消监听陀螺仪数据变化事件
+         * @param callback - 陀螺仪数据变化事件的回调函数
+         * @example
+         * ```javascript
+         * const gyroCallback = (res) => console.log(res.x, res.y, res.z);
+         * ks.onGyroscopeChange(gyroCallback);
+         * // 取消指定回调
+         * ks.offGyroscopeChange(gyroCallback);
+         * ```
+         */
+        offGyroscopeChange: (callback: (res: GyroscopeChangeResult) => void) => void;
+
+        //#endregion 陀螺仪
+
+        //#region 性能
+
+        /**
+         * 监听内存不足告警事件
+         * @description iOS/Android 向小游戏进程发出内存警告时触发；触发不意味小游戏被杀，可回收不必要资源缓解内存紧张
+         * @param callback - 内存不足告警回调函数，参数包含 Android 专属的告警等级
+         * @example
+         * ```javascript
+         * ks.onMemoryWarning(function (res) {
+         *   console.log('onMemoryWarningReceive', res.level); // Android 可获取等级，iOS 无
+         * })
+         * ```
+         */
+        onMemoryWarning: (callback: (res: MemoryWarningResult) => void) => void;
+
+        /**
+         * 取消监听内存不足告警事件
+         * @param callback - 内存不足告警事件的回调函数
+         * @example
+         * ```javascript
+         * const warningCallback = function (res) {
+         *   console.log('onMemoryWarningReceive', res.level);
+         * };
+         * ks.onMemoryWarning(warningCallback);
+         * // 取消指定回调
+         * ks.offMemoryWarning(warningCallback);
+         * ```
+         */
+        offMemoryWarning: (callback: (res: MemoryWarningResult) => void) => void;
+
+        //#endregion 性能
+
+        //#region 震动 
+
+        /**
+         * 使手机发生较短时间的振动（15 ms）
+         * @description 仅在 iPhone 7 / 7 Plus 以上及 Android 机型生效
+         * @param object - 接口入参，包含必填的震动强度类型、各类回调函数
+         * @example
+         * ```javascript
+         * ks.vibrateShort({
+         *   type: 'medium',
+         *   success: () => console.log('短振动成功'),
+         *   fail: (res) => console.error('短振动失败：', res.errMsg)
+         * });
+         * ```
+         */
+        vibrateShort: (object: VibrateShortOptions) => void;
+
+        /**
+         * 使手机发生较长时间的振动（400 ms）
+         * @param object - 接口入参，包含各类回调函数
+         * @example
+         * ```javascript
+         * ks.vibrateLong({
+         *   success: () => console.log('长振动成功'),
+         *   fail: (err) => console.error('长振动失败：', err)
+         * });
+         * ```
+         */
+        vibrateLong: (object?: VibrateLongOptions) => void;
+
+        //#endregion 震动
+
+        //#endregion 设备
+
+        //#region 游戏对局回放
+
+        //#endregion 游戏对局回放
     }
 }
