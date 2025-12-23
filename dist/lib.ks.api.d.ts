@@ -1614,7 +1614,382 @@ declare namespace KuaiShouWebMinigame {
 
         //#region 游戏对局回放
 
+        /**
+         * 获取全局唯一的游戏画面录制对象
+         * @returns 全局唯一的 GameRecorder 实例
+         * @example
+         * ```javascript
+         * // 获取录制实例
+         * const recorder = ks.getGameRecorder();
+         *
+         * // 监听错误事件
+         * recorder.on('error', res => {
+         *   console.log('错误码', res.error.code);
+         *   console.log('错误信息', res.error.msg);
+         *   if (res.error.code === ks.error.GameRecorder_StartWhileAlreadyStartRecording) {
+         *     // 处理重复开始录制的错误
+         *   }
+         * });
+         *
+         * // 开始录制
+         * recorder.start();
+         *
+         * // 暂停录制
+         * recorder.pause().then(() => {
+         *   console.log('录制已暂停');
+         * }).catch(err => {
+         *   console.error('暂停失败', err);
+         * });
+         *
+         * // 恢复录制
+         * recorder.resume().then(() => {
+         *   console.log('录制已恢复');
+         * });
+         *
+         * // 停止录制并发布
+         * recorder.stop().then(() => {
+         *   recorder.publishVideo({
+         *     callback: (error) => {
+         *       if (error) {
+         *         console.log("分享录屏失败: " + JSON.stringify(error));
+         *         return;
+         *       }
+         *       console.log("分享录屏成功");
+         *     }
+         *   });
+         * }).catch(err => {
+         *   console.error('停止录制失败', err);
+         * });
+         * ```
+         */
+        getGameRecorder(): GameRecorder;
+
         //#endregion 游戏对局回放
+
+        //#region 添加到桌面
+
+        /**
+         * 添加小游戏快捷方式到手机桌面
+         * @description iOS 不支持任何回调；Android 支持 success/fail/complete 回调
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.addShortcut({
+         *   success() {
+         *     console.log("添加桌面成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("添加桌面失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        addShortcut: (object: AddShortcutOptions) => void;
+
+        /**
+         * 检查小游戏快捷方式是否已添加到桌面
+         * @description 仅 Android 支持；快捷方式/mini apk 任一安装则 installed 为 true
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.checkShortcut({
+         *   success(res) {
+         *     console.log("是否已添加快捷方式", res.installed);
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("检查快捷方式失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        checkShortcut: (object: CheckShortcutOptions) => void;
+
+        /**
+         * 判断小游戏是否从桌面快捷方式启动
+         * @description 推荐在 ks.onShow 回调中调用，不推荐在冷启动入口调用
+         * @returns true 表示从桌面快捷方式启动，false 反之
+         * @example
+         * ```javascript
+         * if (ks.isLaunchFromShortcut()) {
+         *   // 从桌面快捷方式启动
+         * } else {
+         *   // 非桌面快捷方式启动
+         * }
+         * ```
+         */
+        isLaunchFromShortcut: () => boolean;
+
+        //#endregion 添加到桌面
+
+        //#region 设为常用
+
+        /**
+         * 将小游戏设为常用
+         * @param object - 接口入参，包含成功/失败/完成回调
+         * @example
+         * ```javascript
+         * ks.addCommonUse({
+         *   success() {
+         *     console.log("设为常用成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("设为常用失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        addCommonUse: (object: AddCommonUseOptions) => void;
+
+        /**
+         * 检查用户是否已将小游戏设为常用
+         * @param object - 接口入参，包含成功/失败/完成回调
+         * @example
+         * ```javascript
+         * ks.checkCommonUse({
+         *   success(res) {
+         *     console.log(`设为常用查询结果为：${res.isCommonUse}`);
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("设为常用查询失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        checkCommonUse: (object: CheckCommonUseOptions) => void;
+
+        //#endregion 设为常用
+
+        //#region 官方号、CP服务号
+
+        /**
+         * 查看关注官方帐号的状态
+         * @param object - 接口入参，包含帐号类型、回调函数
+         * @example
+         * ```javascript
+         * // 检查是否关注CP服务号
+         * function checkFollowCPServiceAccount() {
+         *   ks.checkFollowState({
+         *     accountType: "CPServiceAccount",
+         *     callback: (result) => {
+         *       if (result.errorCode === -10005) {
+         *         console.log("not support CPServiceAccount");
+         *       } else {
+         *         console.log(`关注状态：${JSON.stringify(result)}`);
+         *       }
+         *     }
+         *   });
+         * }
+         * ```
+         */
+        checkFollowState: (object: CheckFollowStateOptions) => void;
+
+        /**
+         * 打开官方帐号的Profile页面
+         * @param object - 接口入参，包含帐号类型、回调函数
+         * @example
+         * ```javascript
+         * // 打开快手小游戏官方号Profile
+         * function openMiniGameOfficialProfile() {
+         *   ks.checkFollowState({
+         *     accountType: "MiniGameOfficialAccount",
+         *     callback: (result) => {
+         *       if (result.errorCode === -10005) {
+         *         console.log("not support MiniGameOfficialAccount");
+         *       } else {
+         *         ks.openUserProfile({
+         *           accountType: "MiniGameOfficialAccount",
+         *           callback: (result) => {
+         *             console.log(`打开Profile结果：${JSON.stringify(result)}`);
+         *           }
+         *         });
+         *       }
+         *     }
+         *   });
+         * }
+         * ```
+         */
+        openUserProfile: (object: OpenUserProfileOptions) => void;
+
+        //#endregion 官方号、CP服务号
+
+        //#region 侧边栏
+
+        /**
+         * 判断侧边栏是否可用
+         * @description 支持版本：安卓>=12.11.10、iOS>=12.11.10，低版本需做兼容处理
+         * @param object - 接口入参，包含成功/失败回调
+         * @example
+         * ```javascript
+         * ks.checkSliderBarIsAvailable({
+         *   success: (result) => {
+         *     let { available } = result;
+         *     if (available) {
+         *       console.log("侧边栏可用");
+         *     }
+         *   },
+         *   fail: (error) => {
+         *     console.log("checkSliderBarIsAvailable fail: ", error);
+         *   },
+         * });
+         * ```
+         */
+        checkSliderBarIsAvailable: (
+            object: CheckSliderBarIsAvailableOptions,
+        ) => void;
+
+        /**
+         * 跳转到小游戏入口场景
+         * @description 支持版本：安卓>=13.4.40、iOS>=13.5.40，低版本需做兼容处理
+         * @param object - 接口入参，包含场景类型、成功/失败/完成回调
+         * @example
+         * ```javascript
+         * ks.navigateToScene({
+         *   scene: "sidebar",
+         *   success: (res) => {
+         *     console.log("navigate to scene success");
+         *   },
+         *   fail: (res) => {
+         *     console.log("navigate to scene fail: ", res);
+         *     // 针对常见错误码处理
+         *     if (res.code === -10005) {
+         *       console.log("当前版本不支持跳转侧边栏，请升级快手App");
+         *     } else if (res.code === -20043) {
+         *       console.log("scene参数不合法，请检查是否为'sidebar'");
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        navigateToScene: (object: NavigateToSceneOptions) => void;
+
+        //#endregion 侧边栏
+
+        //#region 游戏圈
+
+        /**
+         * 跳转到游戏圈
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.jumpToGameClub({
+         *   success(res) {
+         *     console.log("成功跳转到游戏圈");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *       console.log("暂不支持该功能");
+         *     } else if (err.code === -100010) {
+         *       console.log("游戏圈未开通");
+         *     } else {
+         *       console.log("跳转游戏圈失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        jumpToGameClub: (object: JumpToGameClubOptions) => void;
+
+        /**
+         * 图片分享至游戏圈
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.shareImageToGameClub({
+         *   path: 'https://cdn.pixabay.com/photo/2025/01/11/21/43/dragonfly-9326948_1280.jpg',
+         *   success(res) {
+         *     console.log("发布成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *       console.log("暂不支持该功能");
+         *     } else if (err.code === -100010) {
+         *       console.log("游戏圈未开通");
+         *     } else {
+         *       console.log("发布失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        shareImageToGameClub: (object: ShareImageToGameClubOptions) => void;
+
+        /**
+         * 从相册选择视频+图片发布
+         * @description 支持版本 >= 13.3.40
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.chooseVideoAndPublish({
+         *   type: 2,
+         *   mouldId: '1',
+         *   success(res) {
+         *     console.log("发布成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *       console.log("暂不支持该功能");
+         *     } else {
+         *       console.log("发布失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        chooseVideoAndPublish: (object: ChooseVideoAndPublishOptions) => void;
+
+        //#endregion 游戏圈
+
+        //#region 数据分析
+
+        /**
+         * 游戏启动阶段自定义场景数据上报
+         * @description 支持版本：安卓>=13.5.40、iOS>=13.5.40，低版本需做兼容处理；同一个sceneId每次启动仅可上报一次
+         * @param object - 接口入参，包含场景ID、耗时、自定义维度/指标等
+         * @example
+         * ```javascript
+         * ks.reportScene({
+         *     sceneId: 7001,
+         *     costTime: 1000,
+         *     dimension: {
+         *         d1: "value"
+         *     },
+         *     metric: {
+         *         m1: "1000"
+         *     },
+         *     success: (res) => {
+         *         console.log("reportScene success", res.data);
+         *     },
+         *     fail: (res) => {
+         *         console.log("reportScene fail: ", res.errNo, res.errMsg);
+         *         // 针对常见错误码处理
+         *         if (res.errNo === 20001) {
+         *             console.log("参数校验失败，请检查sceneId/维度/指标格式");
+         *         } else if (res.errNo === -20001) {
+         *             console.log("系统内部异常，请重试");
+         *         }
+         *     },
+         * });
+         * ```
+         */
+        reportScene: (object: ReportSceneOptions) => void;
+
+        //#endregion 数据分析
     }
     /**
      * Banner 广告组件的样式配置
@@ -1954,6 +2329,70 @@ declare namespace KuaiShouWebMinigame {
          * @param callback - 用户点击 关闭广告 按钮的事件的回调函数
          */
         offClose: (callback: (res: RewardedVideoAdCloseResult) => void) => void;
+    }
+    /**
+     * addCommonUse 成功回调参数
+     */
+    interface AddCommonUseSuccessResult {
+        /** 1 表示设为常用成功 */
+        code: 1;
+        /** 成功提示信息 */
+        msg: "addCommonUse:ok";
+    }
+
+    /**
+     * addCommonUse 失败回调参数
+     */
+    interface AddCommonUseFailResult {
+        /** 异常错误码（如 -10005 表示暂不支持该功能） */
+        code: number;
+        /** 失败提示信息 */
+        msg: "addCommonUse:fail";
+    }
+
+    /**
+     * addCommonUse 接口入参
+     */
+    interface AddCommonUseOptions {
+        /** 接口调用成功的回调函数 */
+        success?: (res: AddCommonUseSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (err: AddCommonUseFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
+        complete?: () => void;
+    }
+    /**
+     * checkCommonUse 成功回调参数
+     */
+    interface CheckCommonUseSuccessResult {
+        /** 1 表示查询成功 */
+        code: 1;
+        /** 成功提示信息 */
+        msg: "checkCommonUse:ok";
+        /** true=已设为常用，false=未设为常用 */
+        isCommonUse: boolean;
+    }
+
+    /**
+     * checkCommonUse 失败回调参数
+     */
+    interface CheckCommonUseFailResult {
+        /** 异常错误码（如 -10005 表示暂不支持该功能） */
+        code: number;
+        /** 失败提示信息 */
+        msg: "checkCommonUse:fail";
+    }
+
+    /**
+     * checkCommonUse 接口入参
+     */
+    interface CheckCommonUseOptions {
+        /** 接口调用成功的回调函数 */
+        success?: (res: CheckCommonUseSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (err: CheckCommonUseFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
+        complete?: () => void;
     }
     /**
      * 描述文件状态的对象
@@ -2469,13 +2908,327 @@ declare namespace KuaiShouWebMinigame {
         ): void;
     }
     /**
-     * 小游戏启动/回到前台事件的参数
+     * 官方帐号类型枚举
      */
-    interface LaunchShowOptions {
-        /** 游戏启动场景 */
-        from: string;
-        /** 启动小游戏时传入的参数 */
-        query: Record<string, any>;
+    type OfficialAccountType = "CPServiceAccount" | "MiniGameOfficialAccount";
+
+    /**
+     * checkFollowState 回调参数
+     */
+    interface CheckFollowStateResult {
+        /** 错误码：1=成功，-10005=暂不支持该功能 */
+        errorCode: number;
+        /** 错误信息 */
+        errorMsg: string;
+        /** 是否关注该官方帐号 */
+        hasFollow: boolean;
+    }
+
+    /**
+     * checkFollowState 接口入参
+     */
+    interface CheckFollowStateOptions {
+        /** 要查询的帐号类型（CPServiceAccount/ MiniGameOfficialAccount） */
+        accountType: OfficialAccountType;
+        /** 回调函数 */
+        callback: (result: CheckFollowStateResult) => void;
+    }
+
+    /**
+     * openUserProfile 回调参数
+     */
+    interface OpenUserProfileResult {
+        /** 错误码：1=成功，其他值为失败（如 -10005=暂不支持） */
+        errorCode: number;
+        /** 错误信息 */
+        errorMsg: string;
+    }
+
+    /**
+     * openUserProfile 接口入参
+     */
+    interface OpenUserProfileOptions {
+        /** 要打开的帐号类型（CPServiceAccount/ MiniGameOfficialAccount） */
+        accountType: OfficialAccountType;
+        /** 回调函数 */
+        callback: (result: OpenUserProfileResult) => void;
+    }
+    /**
+     * 发布目标类型枚举（快手/游戏圈）
+     */
+    type PublishTargetType = 1 | 2; // 1=发布到快手，2=发布到快手并同步至游戏圈
+
+    /**
+     * jumpToGameClub 成功回调参数
+     */
+    interface JumpToGameClubSuccessResult {
+        /** 1=成功，-10005=暂不支持，-100010=游戏圈未开通 */
+        code: 1 | -10005 | -100010;
+        /** 成功信息 */
+        msg: "jumpToGameClub:ok";
+    }
+
+    /**
+     * jumpToGameClub 失败回调参数
+     */
+    interface JumpToGameClubFailResult {
+        /** 异常错误码 */
+        code: number;
+        /** 失败信息 */
+        msg: "jumpToGameClub:fail";
+    }
+
+    /**
+     * jumpToGameClub 接口入参
+     */
+    interface JumpToGameClubOptions {
+        /** 接口调用成功的回调函数 */
+        success?: (res: JumpToGameClubSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (err: JumpToGameClubFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
+        complete?: () => void;
+    }
+
+    /**
+     * shareImageToGameClub 成功回调参数
+     */
+    interface ShareImageToGameClubSuccessResult {
+        /** 1=成功，-10005=暂不支持，-100010=游戏圈未开通 */
+        code: 1 | -10005 | -100010;
+        /** 成功信息 */
+        msg: "shareImageToGameClub:ok";
+    }
+
+    /**
+     * shareImageToGameClub 失败回调参数
+     */
+    interface ShareImageToGameClubFailResult {
+        /** 异常错误码 */
+        code: number;
+        /** 失败信息 */
+        msg: "shareImageToGameClub:fail";
+    }
+
+    /**
+     * shareImageToGameClub 接口入参
+     * @description Android支持cdn格式，iOS支持cdn/ksfile格式
+     */
+    interface ShareImageToGameClubOptions {
+        /** 图片地址（非必填） */
+        path?: string;
+        /** 分享文案模板ID（非必填，需开放平台配置审核） */
+        mouldId?: string;
+        /** 接口调用成功的回调函数 */
+        success?: (res: ShareImageToGameClubSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (err: ShareImageToGameClubFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
+        complete?: () => void;
+    }
+
+    /**
+     * GameRecorder.publishVideo 扩展入参（新增 type 字段）
+     */
+    interface GameRecorderPublishVideoOptions {
+        /** 发布目标类型（必填） */
+        type: PublishTargetType;
+        /** 回调函数（成功时 error 为 undefined/null） */
+        callback: (error?: { code: number; msg: string }) => void;
+        /** 分享文案模板ID（非必填） */
+        mouldId?: string;
+        /** 待发布视频ID/ID数组（非必填，默认最后一次录制） */
+        video?: number | number[];
+        /** 携带字段（aaa=bbb&ccc=ddd 格式） */
+        query?: string;
+    }
+
+    /**
+     * chooseVideoAndPublish 成功回调参数
+     * @description 支持版本 >= 13.3.40
+     */
+    interface ChooseVideoAndPublishSuccessResult {
+        /** 1=成功，-10005=版本不支持 */
+        code: 1 | -10005;
+        /** 成功信息 */
+        msg: "chooseVideoAndPublish:ok";
+    }
+
+    /**
+     * chooseVideoAndPublish 失败回调参数
+     */
+    interface ChooseVideoAndPublishFailResult {
+        /** 异常错误码 */
+        code: number;
+        /** 失败信息 */
+        msg: "chooseVideoAndPublish:fail";
+    }
+
+    /**
+     * chooseVideoAndPublish 接口入参
+     * @description 从相册选择视频+图片发布，支持版本 >= 13.3.40
+     */
+    interface ChooseVideoAndPublishOptions {
+        /** 发布目标类型（非必填） */
+        type?: PublishTargetType;
+        /** 分享文案模板ID（非必填） */
+        mouldId?: string;
+        /** 接口调用成功的回调函数 */
+        success?: (res: ChooseVideoAndPublishSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (err: ChooseVideoAndPublishFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
+        complete?: () => void;
+    }
+    /**
+     * GameRecorder 错误码枚举（文档定义的所有错误码）
+     */
+    enum GameRecorderErrorCode {
+        UnknownError = "GameRecorder_UnknownError", // 未知错误
+        InternalFailed = "GameRecorder_InternalFailed", // SDK 内部错误
+        NotSupported = "GameRecorder_NotSupported", // 当前设备不支持录制
+        StartWhileAlreadyStartRecording = "GameRecorder_StartWhileAlreadyStartRecording", // 已开始录制时调用 start
+        StartWhilePaused = "GameRecorder_StartWhilePaused", // 暂停状态调用 start（应调用 resume）
+        PauseWhileNotStartRecording = "GameRecorder_PauseWhileNotStartRecording", // 未开始录制时调用 pause
+        PauseWhileAlreadyPaused = "GameRecorder_PauseWhileAlreadyPaused", // 已暂停时调用 pause
+        ResumeWhileNotStartRecording = "GameRecorder_ResumeWhileNotStartRecording", // 未开始录制时调用 resume
+        ResumeWhileRecording = "GameRecorder_ResumeWhileRecording", // 录制中调用 resume（仅暂停态可调用）
+        AbortWhileNotStartRecording = "GameRecorder_AbortWhileNotStartRecording", // 未开始录制时调用 abort
+        StopWhileNotStartRecording = "GameRecorder_StopWhileNotStartRecording", // 未开始录制时调用 stop
+        RecordFailedTimeRangeTooShort = "GameRecorder_RecordFailedTimeRangeTooShort", // 录制时间太短
+        RecordFailedTimeRangeTooLong = "GameRecorder_RecordFailedTimeRangeTooLong", // 录制时间太长
+        RecordFailedNoVideo = "GameRecorder_RecordFailedNoVideo", // 未录制到视频
+        PublishVideoFailed = "GameRecorder_PublishVideoFailed", // 发布录屏失败
+    }
+
+    /**
+     * GameRecorder 事件类型枚举
+     */
+    type GameRecorderEvent =
+        | "start"
+        | "stop"
+        | "pause"
+        | "resume"
+        | "abort"
+        | "error";
+
+    /**
+     * Error 事件的回调参数
+     */
+    interface GameRecorderErrorEvent {
+        error: {
+            code: GameRecorderErrorCode;
+            msg: string;
+        };
+    }
+
+    /**
+     * Stop 事件的回调参数
+     */
+    interface GameRecorderStopEvent {
+        videoID: string; // 录屏成功时的视频ID
+    }
+
+    /**
+     * publishVideo 接口的入参
+     */
+    interface PublishVideoOptions {
+        /** 发布目标类型（必填） */
+        type: PublishTargetType;
+        /** 回调函数（成功时 error 为 undefined/null） */
+        callback: (error?: { code: number; msg: string }) => void;
+        /** 分享文案模板 ID（非必填，需开放平台配置并审核） */
+        mouldId?: string;
+        /** 待发布视频ID/ID数组（非必填，默认最后一次录制的视频） */
+        video?: number | number[];
+        /** 携带字段（aaa=bbb&ccc=ddd 格式，可通过 ks.getLaunchOptionsSync 获取） */
+        query?: string;
+    }
+
+    /**
+     * 游戏画面录制对象
+     */
+    interface GameRecorder {
+        /**
+         * 开始录制游戏画面
+         */
+        start(): void;
+
+        /**
+         * 结束录制游戏画面（结束后可发起分享）
+         * @returns 录制结束的 Promise
+         */
+        stop(): Promise<void>;
+
+        /**
+         * 暂停录制游戏画面
+         * @returns 录制暂停的 Promise
+         */
+        pause(): Promise<void>;
+
+        /**
+         * 恢复录制游戏画面
+         * @returns 录制恢复的 Promise
+         */
+        resume(): Promise<void>;
+
+        /**
+         * 放弃录制游戏画面（已录制内容会被丢弃）
+         * @returns 录制中断的 Promise
+         */
+        abort(): Promise<void>;
+
+        /**
+         * 注册监听录制事件的回调函数
+         * @param event - 事件名
+         * @param callback - 事件回调（error/stop 有参数，其他事件无参）
+         */
+        on(
+            event: "error",
+            callback: (res: GameRecorderErrorEvent) => void,
+        ): void;
+        on(event: "stop", callback: (res: GameRecorderStopEvent) => void): void;
+        on(
+            event: Exclude<GameRecorderEvent, "error" | "stop">,
+            callback: () => void,
+        ): void;
+
+        /**
+         * 取消监听录制事件
+         * @param event - 事件名
+         * @param callback - 要取消的回调函数
+         */
+        off(
+            event: "error",
+            callback: (res: GameRecorderErrorEvent) => void,
+        ): void;
+        off(
+            event: "stop",
+            callback: (res: GameRecorderStopEvent) => void,
+        ): void;
+        off(
+            event: Exclude<GameRecorderEvent, "error" | "stop">,
+            callback: () => void,
+        ): void;
+
+        /**
+         * 发布录屏到快手
+         * @param object - 发布参数
+         * @example
+         * ```js
+         * GameRecorder.publishVideo({
+         * 	video: videoID,
+         * 	callback: (error) => {
+         * 		if (error != null && error != undefined) {
+         * 			console.log("分享录屏失败: " + JSON.stringiwfy(error));
+         * 			return;
+         * 		}
+         * 		console.log("分享录屏成功");
+         * 	}
+         * });
+         * ```
+         */
+        publishVideo(object: PublishVideoOptions): void;
     }
     /**
      * showToast 接口的入参
@@ -2717,6 +3470,65 @@ declare namespace KuaiShouWebMinigame {
         onerror?: (err?: any) => void;
     }
     /**
+     * reportScene 错误码枚举（文档定义的核心错误码）
+     */
+    enum ReportSceneErrorCode {
+        PARAM_VALIDATE_FAILED = 20001, // 参数校验失败（类型/重复上报/长度超限等）
+        INTERNAL_ERROR = -20001, // 系统内部异常
+    }
+
+    /**
+     * reportScene 成功回调参数
+     */
+    interface ReportSceneSuccessResult {
+        /** 成功标识 */
+        errMsg: "reportScene:ok";
+        /** 开发者上报的原始数据 */
+        data: {
+            sceneId: number;
+            costTime?: number;
+            dimension?: Record<string, string>;
+            metric?: Record<string, string>;
+        };
+    }
+
+    /**
+     * reportScene 失败回调参数
+     */
+    interface ReportSceneFailResult {
+        /** 异常错误码（参考 ReportSceneErrorCode） */
+        errNo: ReportSceneErrorCode | number;
+        /** 错误信息（如参数校验失败、重复上报等） */
+        errMsg: string;
+    }
+
+    /**
+     * reportScene 接口入参
+     * @description 支持版本：安卓>=13.5.40、iOS>=13.5.40，低版本需兼容处理
+     */
+    interface ReportSceneOptions {
+        /** 场景ID（必填，游戏每次启动仅可上报一次） */
+        sceneId: number;
+        /** 场景耗时（单位ms，默认0，非必填） */
+        costTime?: number;
+        /**
+         * 自定义维度数据（非必填）
+         * @description key从「小程序管理后台」获取；需可JSON.stringify序列化，长度≤1024字符；每个字段为非空字符串
+         */
+        dimension?: Record<string, string>;
+        /**
+         * 自定义指标数据（非必填）
+         * @description key从「小程序管理后台」获取；需可JSON.stringify序列化，长度≤1024字符；每个字段为可解析为数字的非空字符串
+         */
+        metric?: Record<string, string>;
+        /** 接口调用成功的回调函数 */
+        success?: (res: ReportSceneSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (res: ReportSceneFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
+        complete?: () => void;
+    }
+    /**
      * shareAppMessage 接口的入参
      */
     interface ShareAppMessageOptions {
@@ -2732,6 +3544,146 @@ declare namespace KuaiShouWebMinigame {
         /** 分享失败的回调函数 */
         fail?: (err: any) => void;
         /** 分享结束的回调函数（成功、失败都会执行） */
+        complete?: () => void;
+    }
+    /**
+     * addShortcut 成功回调参数
+     */
+    interface AddShortcutSuccessResult {
+        /** 1 表示成功 */
+        code: 1;
+        /** 成功信息 */
+        msg: "addShortcut:ok";
+    }
+
+    /**
+     * addShortcut 失败回调参数
+     */
+    interface AddShortcutFailResult {
+        /** 异常错误码（如 -10005 表示暂不支持该功能） */
+        code: number;
+        /** 失败信息 */
+        msg: "addShortcut:fail";
+    }
+
+    /**
+     * addShortcut 接口入参
+     */
+    interface AddShortcutOptions {
+        /** 接口调用成功的回调函数（iOS 不支持回调） */
+        success?: (res: AddShortcutSuccessResult) => void;
+        /** 接口调用失败的回调函数（iOS 不支持回调） */
+        fail?: (err: AddShortcutFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行，iOS 不支持） */
+        complete?: () => void;
+    }
+
+    /**
+     * checkShortcut 成功回调参数
+     */
+    interface CheckShortcutSuccessResult {
+        /** 1 表示成功 */
+        code: 1;
+        /** 是否已添加快捷方式（快捷方式/mini apk 任一安装则为 true） */
+        installed: boolean;
+    }
+
+    /**
+     * checkShortcut 失败回调参数
+     */
+    interface CheckShortcutFailResult {
+        /** 异常错误码（如 -10005 表示暂不支持该功能） */
+        code: number;
+        /** 错误信息（如 "apk info is invalid"） */
+        msg: string;
+    }
+
+    /**
+     * checkShortcut 接口入参（仅 Android 支持）
+     */
+    interface CheckShortcutOptions {
+        /** 接口调用成功的回调函数 */
+        success?: (res: CheckShortcutSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (err: CheckShortcutFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
+        complete?: () => void;
+    }
+    /**
+     * navigateToScene 支持的场景枚举
+     */
+    type NavigateScene = "sidebar"; // 侧边栏场景（最低版本：安卓13.4.40/iOS13.5.40）
+
+    /**
+     * navigateToScene 错误码枚举（文档定义的核心错误码）
+     */
+    enum NavigateSceneErrorCode {
+        UNSUPPORTED_VERSION = -10005, // 低于支持版本（安卓<13.4.40/iOS<13.5.40）
+        INTERNAL_ERROR = -20001, // 系统内部异常
+        FREQUENCY_LIMIT = -20041, // API调用次数超频控
+        GAME_NOT_REGISTERED = -20042, // 游戏未备案
+        SCENE_ILLEGAL = -20043, // scene参数不合法
+    }
+
+    /**
+     * checkSliderBarIsAvailable 成功回调参数
+     */
+    interface CheckSliderBarIsAvailableSuccessResult {
+        /** 侧边栏是否可用（true=可用，false=不可用） */
+        available: boolean;
+    }
+
+    /**
+     * checkSliderBarIsAvailable 失败回调参数
+     */
+    interface CheckSliderBarIsAvailableFailResult {
+        /** 异常错误码 */
+        code: number;
+        /** 错误信息 */
+        msg: string;
+    }
+
+    /**
+     * checkSliderBarIsAvailable 接口入参
+     * @description 支持版本：安卓>=12.11.10、iOS>=12.11.10，低版本需兼容
+     */
+    interface CheckSliderBarIsAvailableOptions {
+        /** 接口调用成功的回调函数 */
+        success?: (result: CheckSliderBarIsAvailableSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (error: CheckSliderBarIsAvailableFailResult) => void;
+    }
+
+    /**
+     * navigateToScene 成功回调参数
+     */
+    interface NavigateToSceneSuccessResult {
+        /** 跳转成功标识 */
+        msg: "success";
+    }
+
+    /**
+     * navigateToScene 失败回调参数
+     */
+    interface NavigateToSceneFailResult {
+        /** 异常错误码（参考 NavigateSceneErrorCode） */
+        code: NavigateSceneErrorCode | number;
+        /** 错误信息（如 "only for kuaishou system version >= 13.4.40..."） */
+        msg: string;
+    }
+
+    /**
+     * navigateToScene 接口入参
+     * @description 支持版本：安卓>=13.4.40、iOS>=13.5.40，低版本需兼容
+     */
+    interface NavigateToSceneOptions {
+        /** 要跳转的入口场景（仅支持 'sidebar'） */
+        scene: NavigateScene;
+        /** 接口调用成功的回调函数 */
+        success?: (res: NavigateToSceneSuccessResult) => void;
+        /** 接口调用失败的回调函数 */
+        fail?: (res: NavigateToSceneFailResult) => void;
+        /** 接口调用结束的回调函数（成功/失败都会执行） */
         complete?: () => void;
     }
     /**
@@ -4052,7 +5004,10 @@ declare namespace KuaiShouWebMinigame {
     /**
      * authorize 接口的权限范围类型
      */
-    type AuthorizeScope = "scope.userInfo" | "scope.writePhotosAlbum";
+    type AuthorizeScope =
+        | "scope.userInfo"
+        | "scope.writePhotosAlbum"
+        | "scope.communityInfo";
 
     /**
      * authorize/fail 回调的参数

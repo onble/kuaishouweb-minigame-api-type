@@ -1574,6 +1574,380 @@ declare namespace KuaiShouWebMinigame {
 
         //#region 游戏对局回放
 
+        /**
+         * 获取全局唯一的游戏画面录制对象
+         * @returns 全局唯一的 GameRecorder 实例
+         * @example
+         * ```javascript
+         * // 获取录制实例
+         * const recorder = ks.getGameRecorder();
+         * 
+         * // 监听错误事件
+         * recorder.on('error', res => {
+         *   console.log('错误码', res.error.code);
+         *   console.log('错误信息', res.error.msg);
+         *   if (res.error.code === ks.error.GameRecorder_StartWhileAlreadyStartRecording) {
+         *     // 处理重复开始录制的错误
+         *   }
+         * });
+         * 
+         * // 开始录制
+         * recorder.start();
+         * 
+         * // 暂停录制
+         * recorder.pause().then(() => {
+         *   console.log('录制已暂停');
+         * }).catch(err => {
+         *   console.error('暂停失败', err);
+         * });
+         * 
+         * // 恢复录制
+         * recorder.resume().then(() => {
+         *   console.log('录制已恢复');
+         * });
+         * 
+         * // 停止录制并发布
+         * recorder.stop().then(() => {
+         *   recorder.publishVideo({
+         *     callback: (error) => {
+         *       if (error) {
+         *         console.log("分享录屏失败: " + JSON.stringify(error));
+         *         return;
+         *       }
+         *       console.log("分享录屏成功");
+         *     }
+         *   });
+         * }).catch(err => {
+         *   console.error('停止录制失败', err);
+         * });
+         * ```
+         */
+        getGameRecorder(): GameRecorder;
+
         //#endregion 游戏对局回放
+
+        //#region 添加到桌面
+
+        /**
+         * 添加小游戏快捷方式到手机桌面
+         * @description iOS 不支持任何回调；Android 支持 success/fail/complete 回调
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.addShortcut({
+         *   success() {
+         *     console.log("添加桌面成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("添加桌面失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        addShortcut: (object: AddShortcutOptions) => void;
+
+        /**
+         * 检查小游戏快捷方式是否已添加到桌面
+         * @description 仅 Android 支持；快捷方式/mini apk 任一安装则 installed 为 true
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.checkShortcut({
+         *   success(res) {
+         *     console.log("是否已添加快捷方式", res.installed);
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("检查快捷方式失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        checkShortcut: (object: CheckShortcutOptions) => void;
+
+        /**
+         * 判断小游戏是否从桌面快捷方式启动
+         * @description 推荐在 ks.onShow 回调中调用，不推荐在冷启动入口调用
+         * @returns true 表示从桌面快捷方式启动，false 反之
+         * @example
+         * ```javascript
+         * if (ks.isLaunchFromShortcut()) {
+         *   // 从桌面快捷方式启动
+         * } else {
+         *   // 非桌面快捷方式启动
+         * }
+         * ```
+         */
+        isLaunchFromShortcut: () => boolean;
+
+        //#endregion 添加到桌面
+
+        //#region 设为常用
+
+        /**
+         * 将小游戏设为常用
+         * @param object - 接口入参，包含成功/失败/完成回调
+         * @example
+         * ```javascript
+         * ks.addCommonUse({
+         *   success() {
+         *     console.log("设为常用成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("设为常用失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        addCommonUse: (object: AddCommonUseOptions) => void;
+
+        /**
+         * 检查用户是否已将小游戏设为常用
+         * @param object - 接口入参，包含成功/失败/完成回调
+         * @example
+         * ```javascript
+         * ks.checkCommonUse({
+         *   success(res) {
+         *     console.log(`设为常用查询结果为：${res.isCommonUse}`);
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *         console.log("暂不支持该功能");
+         *     } else {
+         *         console.log("设为常用查询失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        checkCommonUse: (object: CheckCommonUseOptions) => void;
+
+        //#endregion 设为常用
+
+        //#region 官方号、CP服务号
+
+        /**
+         * 查看关注官方帐号的状态
+         * @param object - 接口入参，包含帐号类型、回调函数
+         * @example
+         * ```javascript
+         * // 检查是否关注CP服务号
+         * function checkFollowCPServiceAccount() {
+         *   ks.checkFollowState({
+         *     accountType: "CPServiceAccount",
+         *     callback: (result) => {
+         *       if (result.errorCode === -10005) {
+         *         console.log("not support CPServiceAccount");
+         *       } else {
+         *         console.log(`关注状态：${JSON.stringify(result)}`);
+         *       }
+         *     }
+         *   });
+         * }
+         * ```
+         */
+        checkFollowState: (object: CheckFollowStateOptions) => void;
+
+        /**
+         * 打开官方帐号的Profile页面
+         * @param object - 接口入参，包含帐号类型、回调函数
+         * @example
+         * ```javascript
+         * // 打开快手小游戏官方号Profile
+         * function openMiniGameOfficialProfile() {
+         *   ks.checkFollowState({
+         *     accountType: "MiniGameOfficialAccount",
+         *     callback: (result) => {
+         *       if (result.errorCode === -10005) {
+         *         console.log("not support MiniGameOfficialAccount");
+         *       } else {
+         *         ks.openUserProfile({
+         *           accountType: "MiniGameOfficialAccount",
+         *           callback: (result) => {
+         *             console.log(`打开Profile结果：${JSON.stringify(result)}`);
+         *           }
+         *         });
+         *       }
+         *     }
+         *   });
+         * }
+         * ```
+         */
+        openUserProfile: (object: OpenUserProfileOptions) => void;
+
+
+        //#endregion 官方号、CP服务号
+
+        //#region 侧边栏
+
+        /**
+         * 判断侧边栏是否可用
+         * @description 支持版本：安卓>=12.11.10、iOS>=12.11.10，低版本需做兼容处理
+         * @param object - 接口入参，包含成功/失败回调
+         * @example
+         * ```javascript
+         * ks.checkSliderBarIsAvailable({
+         *   success: (result) => {
+         *     let { available } = result;
+         *     if (available) {
+         *       console.log("侧边栏可用");
+         *     }
+         *   },
+         *   fail: (error) => {
+         *     console.log("checkSliderBarIsAvailable fail: ", error);
+         *   },
+         * });
+         * ```
+         */
+        checkSliderBarIsAvailable: (object: CheckSliderBarIsAvailableOptions) => void;
+
+        /**
+         * 跳转到小游戏入口场景
+         * @description 支持版本：安卓>=13.4.40、iOS>=13.5.40，低版本需做兼容处理
+         * @param object - 接口入参，包含场景类型、成功/失败/完成回调
+         * @example
+         * ```javascript
+         * ks.navigateToScene({
+         *   scene: "sidebar",
+         *   success: (res) => {
+         *     console.log("navigate to scene success");
+         *   },
+         *   fail: (res) => {
+         *     console.log("navigate to scene fail: ", res);
+         *     // 针对常见错误码处理
+         *     if (res.code === -10005) {
+         *       console.log("当前版本不支持跳转侧边栏，请升级快手App");
+         *     } else if (res.code === -20043) {
+         *       console.log("scene参数不合法，请检查是否为'sidebar'");
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        navigateToScene: (object: NavigateToSceneOptions) => void;
+
+        //#endregion 侧边栏
+
+        //#region 游戏圈
+
+        /**
+         * 跳转到游戏圈
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.jumpToGameClub({
+         *   success(res) {
+         *     console.log("成功跳转到游戏圈");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *       console.log("暂不支持该功能");
+         *     } else if (err.code === -100010) {
+         *       console.log("游戏圈未开通");
+         *     } else {
+         *       console.log("跳转游戏圈失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        jumpToGameClub: (object: JumpToGameClubOptions) => void;
+
+        /**
+         * 图片分享至游戏圈
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.shareImageToGameClub({
+         *   path: 'https://cdn.pixabay.com/photo/2025/01/11/21/43/dragonfly-9326948_1280.jpg',
+         *   success(res) {
+         *     console.log("发布成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *       console.log("暂不支持该功能");
+         *     } else if (err.code === -100010) {
+         *       console.log("游戏圈未开通");
+         *     } else {
+         *       console.log("发布失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        shareImageToGameClub: (object: ShareImageToGameClubOptions) => void;
+
+        /**
+         * 从相册选择视频+图片发布
+         * @description 支持版本 >= 13.3.40
+         * @param object - 接口入参
+         * @example
+         * ```javascript
+         * ks.chooseVideoAndPublish({
+         *   type: 2,
+         *   mouldId: '1',
+         *   success(res) {
+         *     console.log("发布成功");
+         *   },
+         *   fail(err) {
+         *     if (err.code === -10005) {
+         *       console.log("暂不支持该功能");
+         *     } else {
+         *       console.log("发布失败", err.msg);
+         *     }
+         *   },
+         * });
+         * ```
+         */
+        chooseVideoAndPublish: (object: ChooseVideoAndPublishOptions) => void;
+
+        //#endregion 游戏圈
+
+        //#region 数据分析
+
+        /**
+         * 游戏启动阶段自定义场景数据上报
+         * @description 支持版本：安卓>=13.5.40、iOS>=13.5.40，低版本需做兼容处理；同一个sceneId每次启动仅可上报一次
+         * @param object - 接口入参，包含场景ID、耗时、自定义维度/指标等
+         * @example
+         * ```javascript
+         * ks.reportScene({
+         *     sceneId: 7001,
+         *     costTime: 1000,
+         *     dimension: {
+         *         d1: "value"
+         *     },
+         *     metric: {
+         *         m1: "1000"
+         *     },
+         *     success: (res) => {
+         *         console.log("reportScene success", res.data);
+         *     },
+         *     fail: (res) => {
+         *         console.log("reportScene fail: ", res.errNo, res.errMsg);
+         *         // 针对常见错误码处理
+         *         if (res.errNo === 20001) {
+         *             console.log("参数校验失败，请检查sceneId/维度/指标格式");
+         *         } else if (res.errNo === -20001) {
+         *             console.log("系统内部异常，请重试");
+         *         }
+         *     },
+         * });
+         * ```
+         */
+        reportScene: (object: ReportSceneOptions) => void;
+
+        //#endregion 数据分析
     }
 }

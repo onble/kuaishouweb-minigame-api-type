@@ -2,7 +2,7 @@ declare namespace KuaiShouWebMinigame {
     /**
      * authorize 接口的权限范围类型
      */
-    type AuthorizeScope = 'scope.userInfo' | 'scope.writePhotosAlbum';
+    type AuthorizeScope = 'scope.userInfo' | 'scope.writePhotosAlbum' | 'scope.communityInfo';
 
     /**
      * authorize/fail 回调的参数
